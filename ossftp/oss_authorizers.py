@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, sys
 
+domainname = "192.168.32.200"
 current_path = os.path.dirname(os.path.abspath(__file__))
 python_path = os.path.abspath( os.path.join(current_path, os.pardir, 'python27', '1.0'))
 lib = os.path.abspath( os.path.join(python_path, 'lib'))
@@ -23,7 +24,7 @@ class BucketLoginInfo():
         self.bucket_name = bucket_name
         self.endpoint = endpoint
         self.access_key = {access_key_id:access_key_secret}
-        self.expire_time = time.time() + 60 
+        self.expire_time = time.time() + 60
 
     def update_access_key(self, access_key_id, access_key_secret):
         self.access_key[access_key_id] = access_key_secret
@@ -35,11 +36,11 @@ class BucketLoginInfo():
 class OssAuthorizer(DummyAuthorizer):
     read_perms = u"elr"
     write_perms = u"adfmwM"
-    default_endpoint = u"oss-cn-hangzhou.aliyuncs.com"
+    default_endpoint = u"192.168.32.200"
     LOCAL_CHECK_OK = 0
     LOCAL_CHECK_FAIL = 1
     LOCAL_CHECK_UNCERTAIN = 2
-    
+
     def __init__(self):
         self.bucket_info_table = {}
         self.expire_time_interval = 60
@@ -58,7 +59,7 @@ class OssAuthorizer(DummyAuthorizer):
             raise AuthorizerError("ACCESS_ID can't be empty!")
 
         return  username[index+1:], username[:index]
-    
+
     def log_bucket_info(self, bucket_name, endpoint, access_key_id):
         work_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
         file_name = work_dir + '/data/ossftp/ossftp.info'
@@ -75,7 +76,7 @@ class OssAuthorizer(DummyAuthorizer):
 
     def put_bucket_info(self, bucket_name, endpoint, access_key_id, access_key_secret):
         if bucket_name not in self.bucket_info_table:
-            self.bucket_info_table[bucket_name] = BucketLoginInfo(bucket_name, 
+            self.bucket_info_table[bucket_name] = BucketLoginInfo(bucket_name,
                     access_key_id, access_key_secret, endpoint)
         else:
             bucket_info = self.get_bucket_info(bucket_name)
@@ -90,8 +91,9 @@ class OssAuthorizer(DummyAuthorizer):
 
     def get_endpoint(self, bucket_name, location, access_key_id, access_key_secret):
         #try if can connect through internal domain
-        internal_endpoint = location + "-internal" + ".aliyuncs.com"
-        public_endpoint = location + ".aliyuncs.com"
+        # internal_endpoint = location + "-internal" + domainname
+        internal_endpoint = domainname
+        public_endpoint =  domainname
         if self.internal is True:
             return internal_endpoint
         elif self.internal is False:
@@ -113,26 +115,35 @@ class OssAuthorizer(DummyAuthorizer):
             except oss2.exceptions.OssError as e:
                 raise AuthenticationFailed("access bucket:%s using specified \
                         endpoint:%s failed. request_id:%s, status:%s, code:%s, message:%s" % (bucket_name, endpoint, e.request_id, unicode(e.status), e.code, e.message))
-            return endpoint 
+            return endpoint
         try:
+            print(access_key_id)
+            print(access_key_secret)
+            print(default_endpoint)
+            logger = logging.getLogger('pyftpdlib')
+            logger.info("oss info access_key_id: %s, access_key_secret: %s, default_endpoint: %s, bucketname: %s" % (access_key_id, access_key_secret, default_endpoint, bucket_name))
             service = oss2.Service(oss2.Auth(access_key_id, access_key_secret), default_endpoint, app_name=defaults.app_name)
             res = service.list_buckets(prefix=bucket_name)
+            logger.info("res_list_buckets: %s" % (vars(res)))
         except oss2.exceptions.AccessDenied as e:
             raise AuthenticationFailed("can't list buckets, check your access_key.request_id:%s, status:%s, code:%s, message:%s"% (e.request_id, unicode(e.status), e.code, e.message))
         except oss2.exceptions.OssError as e:
             raise AuthenticationFailed("list buckets error. request_id:%s, status:%s, code:%s, message:%s" % (e.request_id, unicode(e.status), e.code, e.message))
 
+        logger = logging.getLogger('pyftpdlib')
+        logger.info("bucket_name: %s" % (bucket_name))
         bucket_list = res.buckets
         for bucket in bucket_list:
+            logger.info("bucket_list, name: %s" % (bucket.name))
             if bucket.name == bucket_name:
                 endpoint = self.get_endpoint(bucket_name, bucket.location.decode('utf-8'), access_key_id, access_key_secret)
                 return endpoint
-        raise AuthenticationFailed("can't find the bucket %s when list buckets." % bucket_name) 
+        raise AuthenticationFailed("can't find the bucket %s when list buckets." % bucket_name)
 
     def local_check(self, bucket_name, access_key_id, access_key_secret):
         bucket_info = self.get_bucket_info(bucket_name)
         if bucket_info is None:
-            return self.LOCAL_CHECK_UNCERTAIN 
+            return self.LOCAL_CHECK_UNCERTAIN
         if bucket_info.expired():
             self.delete_bucket_info(bucket_name)
             return self.LOCAL_CHECK_UNCERTAIN
@@ -165,7 +176,7 @@ class OssAuthorizer(DummyAuthorizer):
         bucket_name, access_key_id = self.parse_username(username)
         bucket_name = bucket_name.strip('/')
         bucket_name = '/' + bucket_name + '/'
-        return bucket_name 
+        return bucket_name
 
     def impersonate_user(self, username, password):
         """Impersonate another user (noop).
@@ -202,10 +213,10 @@ class OssAuthorizer(DummyAuthorizer):
         """Return the user's login message."""
         bucket_name, access_key_id = self.parse_username(username)
         msg = u"login to bucket: %s with access_key_id: %s" % (bucket_name, access_key_id)
-        return msg 
+        return msg
 
     def get_msg_quit(self, username):
         """Return the user's quitting message."""
         bucket_name, access_key_id = self.parse_username(username)
         msg = u"logout of bucket: %s with access_key_id: %s" % (bucket_name, access_key_id)
-        return msg 
+        return msg

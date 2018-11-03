@@ -13,6 +13,7 @@ XML处理相关。
 """
 
 import xml.etree.ElementTree as ElementTree
+import logging
 
 from .models import (SimplifiedObjectInfo,
                      SimplifiedBucketInfo,
@@ -25,11 +26,13 @@ from .models import (SimplifiedObjectInfo,
 from .compat import urlunquote, to_unicode, to_string
 from .utils import iso8601_to_unixtime, date_to_iso8601, iso8601_to_date
 
+logger = logging.getLogger('xml')
 
 def _find_tag(parent, path):
     child = parent.find(path)
     if child is None:
-        raise RuntimeError("parse xml: " + path + " could not be found under " + parent.tag)
+        return ''
+        # raise RuntimeError("parse xml: " + path + " could not be found under " + parent.tag)
 
     if child.text is None:
         return ''
@@ -85,6 +88,7 @@ def _add_text_child(parent, tag, text):
 
 
 def parse_list_objects(result, body):
+    logger.info("parse_list_objects body: %s" %(body))
     root = ElementTree.fromstring(body)
     url_encoded = _is_url_encoding(root)
 
@@ -109,17 +113,26 @@ def parse_list_objects(result, body):
 
 
 def parse_list_buckets(result, body):
+    print("###########")
     root = ElementTree.fromstring(body)
+    print("================")
+    print (body)
+    print(root.__dict__)
 
-    if root.find('IsTruncated') is None:
-        result.is_truncated = False
-    else:
-        result.is_truncated = _find_bool(root, 'IsTruncated')
+    # if root.find('IsTruncated') is None:
+    #     result.is_truncated = False
+    # else:
+    #     result.is_truncated = _find_bool(root, 'IsTruncated')
 
-    if result.is_truncated:
-        result.next_marker = _find_tag(root, 'NextMarker')
+    # if result.is_truncated:
+    #     result.next_marker = _find_tag(root, 'NextMarker')
 
+    print("###########")
+    logger.info('#######')
     for bucket_node in root.findall('Buckets/Bucket'):
+        print("--------")
+        print(bucket_node.__dict__)
+        logger.info(bucket_node.__dict__)
         result.buckets.append(SimplifiedBucketInfo(
             _find_tag(bucket_node, 'Name'),
             _find_tag(bucket_node, 'Location'),
@@ -277,7 +290,6 @@ def parse_get_bucket_cors(result, body):
 
     return result
 
-
 def to_complete_upload_request(parts):
     root = ElementTree.Element('CompleteMultipartUpload')
     for p in parts:
@@ -370,3 +382,16 @@ def to_put_bucket_cors(bucket_cors):
             _add_text_child(rule_node, 'MaxAgeSeconds', str(rule.max_age_seconds))
 
     return _node_to_string(root)
+
+namespace = "http://s3.amazonaws.com/doc/2006-03-01/"
+def remove_namespace(strdoc):
+    print(strdoc)
+    tree = ElementTree.fromstring(strdoc)
+    ns = u'{%s}' % namespace
+    nsl = len(ns)
+    for elem in tree.getiterator():
+        if elem.tag.startswith(ns):
+            elem.tag = elem.tag[nsl:]
+
+    result = ElementTree.tostring(tree, encoding='UTF-8', method='xml')
+    return result

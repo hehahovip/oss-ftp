@@ -119,12 +119,15 @@ from . import defaults
 
 from .models import *
 from .compat import urlquote, urlparse, to_unicode, to_string
+from urllib import quote
 
 import time
 import shutil
 import oss2.utils
+import logging
 
 
+logger = logging.getLogger('api')
 class _Base(object):
     def __init__(self, auth, endpoint, is_cname, session, connect_timeout,
                  app_name=''):
@@ -137,21 +140,39 @@ class _Base(object):
         self._make_url = _UrlMaker(self.endpoint, is_cname)
 
     def _do(self, method, bucket_name, key, **kwargs):
+        logger.info("key : %s, " % (key))
+        logger.info(type(key))
+        
         key = to_string(key)
+
         req = http.Request(method, self._make_url(bucket_name, key),
                            app_name=self.app_name,
                            **kwargs)
+
         self.auth._sign_request(req, bucket_name, key)
+        logger.info("req : %s" % (vars(req)))
 
         resp = self.session.do_request(req, timeout=self.timeout)
+        logger.info("resp is : %s" % (vars(resp)))
         if resp.status // 100 != 2:
+            # logger.info("resp.status===: %d" % (resp.status) )
+            logger.info("resp body: %s" % (resp.read()))
             raise exceptions.make_exception(resp)
-
+        logger.info("request ending")
         return resp
 
     def _parse_result(self, resp, parse_func, klass):
+
         result = klass(resp)
-        parse_func(result, resp.read())
+        body = resp.read()
+        logger.info("before remove %s" % (body))
+        logger.info('_parse_result===========')
+        body = xml_utils.remove_namespace(body)
+        logger.info("after remove %s" % (body))
+
+        parse_func(result, to_unicode(body))
+        logger.info("result: %s" %(result))
+        print( "result: {0}".format(result.__dict__))
         return result
 
 
@@ -195,10 +216,13 @@ class Service(_Base):
         :return: 罗列的结果
         :rtype: oss2.models.ListBucketsResult
         """
+
+        logger.info("list bucket : auth %s" % (vars(self.auth)))
         resp = self._do('GET', '', '',
                         params={'prefix': prefix,
                                 'marker': marker,
                                 'max-keys': max_keys})
+
         return self._parse_result(resp, xml_utils.parse_list_buckets, ListBucketsResult)
 
 
@@ -315,6 +339,7 @@ class Bucket(_Base):
         """
         headers = utils.set_content_type(http.CaseInsensitiveDict(headers), key)
 
+        # logger.info("put_object key: %s, unicode: %s" %(key, quote(key)))
         if progress_callback:
             data = utils.make_progress_adapter(data, progress_callback)
 
@@ -337,6 +362,8 @@ class Bucket(_Base):
         :return: :class:`PutObjectResult <oss2.models.PutObjectResult>`
         """
         headers = utils.set_content_type(http.CaseInsensitiveDict(headers), filename)
+
+        logger.info("put_object_from_file key: %s, filename: %s" %(key, filename))
 
         with open(to_unicode(filename), 'rb') as f:
             return self.put_object(key, f, headers=headers, progress_callback=progress_callback)
@@ -915,7 +942,6 @@ def _determine_endpoint_type(netloc, is_cname, bucket_name):
         return _ENDPOINT_TYPE_ALIYUN
     else:
         return _ENDPOINT_TYPE_IP
-
 
 class _UrlMaker(object):
     def __init__(self, endpoint, is_cname):

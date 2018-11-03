@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# export LC_ALL=en_US.UTF-8; export LANG="en_US.UTF-8"; locale
 SCRIPTPATH=`dirname "${BASH_SOURCE[0]}"`
 cd $SCRIPTPATH
 

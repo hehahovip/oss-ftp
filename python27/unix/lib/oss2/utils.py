@@ -303,7 +303,7 @@ class _SizedProgressFileAdapter(object):
 _STRPTIME_LOCK = threading.Lock()
 
 _GMT_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
-_ISO8601_FORMAT = "%Y-%m-%dT%H:%M:%S.000Z"
+_ISO8601_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 def to_unixtime(time_string, format_string):

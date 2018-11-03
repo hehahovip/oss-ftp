@@ -18,8 +18,10 @@ from .compat import to_bytes
 from .exceptions import RequestError
 from .utils import file_object_remaining_bytes, SizedFileAdapter
 
+import logging
+logger = logging.getLogger('http')
 
-_USER_AGENT = 'aliyun-sdk-python/{0}({1}/{2}/{3};{4})'.format(
+_USER_AGENT = 'jitstack-sdk-python/{0}({1}/{2}/{3};{4})'.format(
     __version__, platform.system(), platform.release(), platform.machine(), platform.python_version())
 
 
@@ -55,6 +57,9 @@ class Request(object):
             self.headers = CaseInsensitiveDict(headers)
         else:
             self.headers = headers
+
+        # debug code here
+        logger.info(headers)
 
         # tell requests not to add 'Accept-Encoding: gzip, deflate' by default
         if 'Accept-Encoding' not in self.headers:

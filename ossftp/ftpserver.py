@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import os, sys
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 current_path = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.abspath( os.path.join(current_path, os.pardir))
 if sys.platform.startswith("linux"):

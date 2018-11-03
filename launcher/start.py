@@ -1,11 +1,14 @@
 #!/usr/bin/env python
-# coding:utf-8
+# -*- coding: utf-8 -*-
 
 import os, sys
 import time
 import atexit
 import webbrowser
 import launcher_log
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 current_path = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.abspath( os.path.join(current_path, os.pardir))

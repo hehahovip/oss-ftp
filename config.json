@@ -7,9 +7,9 @@
       "show_systray":1
     },
     "ossftp":{
-      "address":"127.0.0.1",
-      "bucket_endpoints":"",
-      "log_level":"INFO",
+      "address":"0.0.0.0",
+      "bucket_endpoints":"192.168.32.200",
+      "log_level":"DEBUG",
       "port":2048
     }
   }
