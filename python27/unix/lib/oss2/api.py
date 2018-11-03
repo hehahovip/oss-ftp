@@ -141,7 +141,6 @@ class _Base(object):
 
     def _do(self, method, bucket_name, key, **kwargs):
         logger.info("key : %s, " % (key))
-        logger.info(type(key))
         
         key = to_string(key)
 
@@ -156,7 +155,7 @@ class _Base(object):
         logger.info("resp is : %s" % (vars(resp)))
         if resp.status // 100 != 2:
             # logger.info("resp.status===: %d" % (resp.status) )
-            logger.info("resp body: %s" % (resp.read()))
+            # logger.info("resp body: %s" % (resp.read()))
             raise exceptions.make_exception(resp)
         logger.info("request ending")
         return resp
@@ -165,8 +164,7 @@ class _Base(object):
 
         result = klass(resp)
         body = resp.read()
-        logger.info("before remove %s" % (body))
-        logger.info('_parse_result===========')
+
         body = xml_utils.remove_namespace(body)
         logger.info("after remove %s" % (body))
 
