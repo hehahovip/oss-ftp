@@ -113,11 +113,8 @@ def parse_list_objects(result, body):
 
 
 def parse_list_buckets(result, body):
-    print("###########")
+
     root = ElementTree.fromstring(body)
-    print("================")
-    print (body)
-    print(root.__dict__)
 
     # if root.find('IsTruncated') is None:
     #     result.is_truncated = False
@@ -127,11 +124,10 @@ def parse_list_buckets(result, body):
     # if result.is_truncated:
     #     result.next_marker = _find_tag(root, 'NextMarker')
 
-    print("###########")
     logger.info('#######')
     for bucket_node in root.findall('Buckets/Bucket'):
-        print("--------")
-        print(bucket_node.__dict__)
+        #print("--------")
+        #print(bucket_node.__dict__)
         logger.info(bucket_node.__dict__)
         result.buckets.append(SimplifiedBucketInfo(
             _find_tag(bucket_node, 'Name'),
@@ -385,7 +381,7 @@ def to_put_bucket_cors(bucket_cors):
 
 namespace = "http://s3.amazonaws.com/doc/2006-03-01/"
 def remove_namespace(strdoc):
-    print(strdoc)
+    #print(strdoc)
     tree = ElementTree.fromstring(strdoc)
     ns = u'{%s}' % namespace
     nsl = len(ns)

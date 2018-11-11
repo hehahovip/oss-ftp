@@ -117,9 +117,9 @@ class OssAuthorizer(DummyAuthorizer):
                         endpoint:%s failed. request_id:%s, status:%s, code:%s, message:%s" % (bucket_name, endpoint, e.request_id, unicode(e.status), e.code, e.message))
             return endpoint
         try:
-            print(access_key_id)
-            print(access_key_secret)
-            print(default_endpoint)
+            #print(access_key_id)
+            #print(access_key_secret)
+            #print(default_endpoint)
             logger = logging.getLogger('pyftpdlib')
             logger.info("oss info access_key_id: %s, access_key_secret: %s, default_endpoint: %s, bucketname: %s" % (access_key_id, access_key_secret, default_endpoint, bucket_name))
             service = oss2.Service(oss2.Auth(access_key_id, access_key_secret), default_endpoint, app_name=defaults.app_name)

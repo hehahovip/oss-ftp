@@ -170,7 +170,7 @@ class _Base(object):
 
         parse_func(result, to_unicode(body))
         logger.info("result: %s" %(result))
-        print( "result: {0}".format(result.__dict__))
+        #print( "result: {0}".format(result.__dict__))
         return result
 
 
