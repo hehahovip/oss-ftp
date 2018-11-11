@@ -140,7 +140,7 @@ class _Base(object):
         self._make_url = _UrlMaker(self.endpoint, is_cname)
 
     def _do(self, method, bucket_name, key, **kwargs):
-        logger.info("key : %s, " % (key))
+        # logger.info("key : %s, " % (key))
         
         key = to_string(key)
 
@@ -149,15 +149,15 @@ class _Base(object):
                            **kwargs)
 
         self.auth._sign_request(req, bucket_name, key)
-        logger.info("req : %s" % (vars(req)))
+        # logger.info("req : %s" % (vars(req)))
 
         resp = self.session.do_request(req, timeout=self.timeout)
-        logger.info("resp is : %s" % (vars(resp)))
+        # logger.info("resp is : %s" % (vars(resp)))
         if resp.status // 100 != 2:
             # logger.info("resp.status===: %d" % (resp.status) )
             # logger.info("resp body: %s" % (resp.read()))
             raise exceptions.make_exception(resp)
-        logger.info("request ending")
+        # logger.info("request ending")
         return resp
 
     def _parse_result(self, resp, parse_func, klass):
@@ -166,10 +166,10 @@ class _Base(object):
         body = resp.read()
 
         body = xml_utils.remove_namespace(body)
-        logger.info("after remove %s" % (body))
+        # logger.info("after remove %s" % (body))
 
         parse_func(result, to_unicode(body))
-        logger.info("result: %s" %(result))
+        # logger.info("result: %s" %(result))
         #print( "result: {0}".format(result.__dict__))
         return result
 
@@ -215,7 +215,7 @@ class Service(_Base):
         :rtype: oss2.models.ListBucketsResult
         """
 
-        logger.info("list bucket : auth %s" % (vars(self.auth)))
+        # logger.info("list bucket : auth %s" % (vars(self.auth)))
         resp = self._do('GET', '', '',
                         params={'prefix': prefix,
                                 'marker': marker,

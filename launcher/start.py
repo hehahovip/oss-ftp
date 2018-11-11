@@ -85,7 +85,7 @@ def main():
     web_control.start()
 
 
-    if has_desktop and config.get(["modules", "launcher", "popup_webui"], 1) == 1:
+    # if has_desktop and config.get(["modules", "launcher", "popup_webui"], 1) == 1:
         #webbrowser.open("http://127.0.0.1:8192/")
 
     if config.get(["modules", "launcher", "show_systray"], 1):

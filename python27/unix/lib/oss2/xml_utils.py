@@ -88,7 +88,7 @@ def _add_text_child(parent, tag, text):
 
 
 def parse_list_objects(result, body):
-    logger.info("parse_list_objects body: %s" %(body))
+    # logger.info("parse_list_objects body: %s" %(body))
     root = ElementTree.fromstring(body)
     url_encoded = _is_url_encoding(root)
 
@@ -124,11 +124,11 @@ def parse_list_buckets(result, body):
     # if result.is_truncated:
     #     result.next_marker = _find_tag(root, 'NextMarker')
 
-    logger.info('#######')
+    # logger.info('#######')
     for bucket_node in root.findall('Buckets/Bucket'):
         #print("--------")
         #print(bucket_node.__dict__)
-        logger.info(bucket_node.__dict__)
+        # logger.info(bucket_node.__dict__)
         result.buckets.append(SimplifiedBucketInfo(
             _find_tag(bucket_node, 'Name'),
             _find_tag(bucket_node, 'Location'),

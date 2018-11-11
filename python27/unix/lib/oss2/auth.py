@@ -30,7 +30,7 @@ class Auth(object):
 
         signature = self.__make_signature(req, bucket_name, key)
         req.headers['authorization'] = "AWS {0}:{1}".format(self.id, signature)
-        logging.info("req authorization: %s" % (req.headers['authorization']))
+        #logging.info("req authorization: %s" % (req.headers['authorization']))
 
     def _sign_url(self, req, bucket_name, key, expires):
         expiration_time = int(time.time()) + expires
@@ -43,22 +43,22 @@ class Auth(object):
         req.params['Signature'] = signature
 
 
-        logging.info("req params: %s" %(vars(req.params)))
+        #logging.info("req params: %s" %(vars(req.params)))
 
         return req.url + '?' + '&'.join(_param_to_quoted_query(k, v) for k, v in req.params.items())
 
     def __make_signature(self, req, bucket_name, key):
-        logging.info("req key: %s" %(key))
+        #logging.info("req key: %s" %(key))
 
         string_to_sign = self.__get_string_to_sign(req, bucket_name, key)
 
-        logging.debug('string_to_sign={0}'.format(string_to_sign))
+        #logging.debug('string_to_sign={0}'.format(string_to_sign))
 
         h = hmac.new(to_bytes(self.secret), to_bytes(string_to_sign), hashlib.sha1)
         return utils.b64encode_as_string(h.digest())
 
     def __get_string_to_sign(self, req, bucket_name, key):
-        logging.info("req_string_sign key: %s" %(key))
+        # logging.info("req_string_sign key: %s" %(key))
         # logging.info("bucket_name: %s" %(unicode(bucket_name, 'utf-8')))
         # logging.info("key: %s" %(unicode(key, 'utf-8')))
         resource_string = self.__get_resource_string(req, bucket_name, key)
@@ -70,7 +70,7 @@ class Auth(object):
         content_type = req.headers.get('content-type', '')
         date = req.headers.get('date', '')
 
-        logging.info("req headers: %s" %(vars(req.headers)))
+        #logging.info("req headers: %s" %(vars(req.headers)))
 
         return '\n'.join([req.method,
                           content_md5,

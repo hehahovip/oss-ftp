@@ -59,7 +59,7 @@ class Request(object):
             self.headers = headers
 
         # debug code here
-        logger.info(headers)
+        # logger.info(headers)
 
         # tell requests not to add 'Accept-Encoding: gzip, deflate' by default
         if 'Accept-Encoding' not in self.headers:
