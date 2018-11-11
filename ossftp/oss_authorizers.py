@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, sys
 
-domainname = "192.168.32.200"
 current_path = os.path.dirname(os.path.abspath(__file__))
 python_path = os.path.abspath( os.path.join(current_path, os.pardir, 'python27', '1.0'))
 lib = os.path.abspath( os.path.join(python_path, 'lib'))
@@ -136,7 +135,8 @@ class OssAuthorizer(DummyAuthorizer):
         for bucket in bucket_list:
             logger.info("bucket_list, name: %s" % (bucket.name))
             if bucket.name == bucket_name:
-                endpoint = self.get_endpoint(bucket_name, bucket.location.decode('utf-8'), access_key_id, access_key_secret)
+                # endpoint = self.get_endpoint(bucket_name, bucket.location.decode('utf-8'), access_key_id, access_key_secret)
+                endpoint = default_endpoint
                 return endpoint
         raise AuthenticationFailed("can't find the bucket %s when list buckets." % bucket_name)
 

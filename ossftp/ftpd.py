@@ -79,6 +79,7 @@ class FTPd(threading.Thread):
                 bucket_name, endpoint = url.split('.', 1)
                 authorizer.bucket_endpoints[bucket_name] = endpoint
         authorizer.internal = internal
+        authorizer.default_endpoint = bucket_endpoints
         self.handler.authorizer = authorizer
         self.handler.permit_foreign_addresses = True
         if self.handler.masquerade_address != "":
