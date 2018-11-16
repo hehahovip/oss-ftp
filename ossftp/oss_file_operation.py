@@ -8,6 +8,7 @@ import oss2
 from oss2.exceptions import *
 
 import defaults
+import logging
 
 class TrickFile:
     def __init__(self, name, resp):
@@ -197,6 +198,13 @@ class OssFileOperation:
         self.put_object('')
         self.key = self.key.rstrip('/')
         self.cache_set(self.dir_cache, (self.bucket.bucket_name, self.key), True)
+
+    def rename(self, path2):
+
+        target_key = path2.lstrip('/').lstrip(self.bucket.bucket_name).lstrip('/')
+        self.bucket.copy_object(self.bucket.bucket_name, self.key, target_key)
+        self.bucket.delete_object(self.key)
+        
 
     @retry
     def delete_object(self):

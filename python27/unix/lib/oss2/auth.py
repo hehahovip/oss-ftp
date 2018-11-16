@@ -83,7 +83,7 @@ class Auth(object):
         canon_headers = []
         for k, v in headers.items():
             lower_key = k.lower()
-            if lower_key.startswith('x-oss-'):
+            if lower_key.startswith('x-amz-'):
                 canon_headers.append((lower_key, v))
 
         canon_headers.sort(key=lambda x: x[0])

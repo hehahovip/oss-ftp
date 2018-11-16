@@ -82,7 +82,8 @@ class OssFsImpl:
         return self.get_file_operation_instance(path).remove()
     
     def rename(self, path1, path2):
-        raise FilesystemError("method rename not implied")
+        return self.get_file_operation_instance(path1).rename(path2)
+        # raise FilesystemError("method rename not implied")
     
     def getsize(self, path):
         return self.get_file_operation_instance(path).getsize()

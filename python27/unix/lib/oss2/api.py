@@ -281,7 +281,7 @@ class Bucket(_Base):
         :param key: 文件名
         :param expires: 过期时间（单位：秒），链接在当前时间再过expires秒后过期
 
-        :param headers: 需要签名的HTTP头部，如名称以x-oss-meta-开头的头部（作为用户自定义元数据）、
+        :param headers: 需要签名的HTTP头部，如名称以x-amz-meta-开头的头部（作为用户自定义元数据）、
             Content-Type头部等。对于下载，不需要填。
         :type headers: 可以是dict，建议是oss2.CaseInsensitiveDict
 
@@ -328,7 +328,7 @@ class Bucket(_Base):
         :param data: 待上传的内容。
         :type data: bytes，str或file-like object
 
-        :param headers: 用户指定的HTTP头部。可以指定Content-Type、Content-MD5、x-oss-meta-开头的头部等
+        :param headers: 用户指定的HTTP头部。可以指定Content-Type、Content-MD5、x-amz-meta-开头的头部等
         :type headers: 可以是dict，建议是oss2.CaseInsensitiveDict
 
         :param progress_callback: 用户指定的进度回调函数。可以用来实现进度条等功能。参考 :ref:`progress_callback` 。
@@ -352,7 +352,7 @@ class Bucket(_Base):
         :param str key: 上传到OSS的文件名
         :param str filename: 本地文件名，需要有可读权限
 
-        :param headers: 用户指定的HTTP头部。可以指定Content-Type、Content-MD5、x-oss-meta-开头的头部等
+        :param headers: 用户指定的HTTP头部。可以指定Content-Type、Content-MD5、x-amz-meta-开头的头部等
         :type headers: 可以是dict，建议是oss2.CaseInsensitiveDict
 
         :param progress_callback: 用户指定的进度回调函数。参考 :ref:`progress_callback`
@@ -378,7 +378,7 @@ class Bucket(_Base):
         :param data: 用户数据
         :type data: str、bytes、file-like object或可迭代对象
 
-        :param headers: 用户指定的HTTP头部。可以指定Content-Type、Content-MD5、x-oss-开头的头部等
+        :param headers: 用户指定的HTTP头部。可以指定Content-Type、Content-MD5、x-amz-开头的头部等
         :type headers: 可以是dict，建议是oss2.CaseInsensitiveDict
 
         :param progress_callback: 用户指定的进度回调函数。参考 :ref:`progress_callback`
@@ -510,13 +510,13 @@ class Bucket(_Base):
         :return: :class:`PutObjectResult <oss2.models.PutObjectResult>`
         """
         headers = http.CaseInsensitiveDict(headers)
-        headers['x-oss-copy-source'] = '/' + source_bucket_name + '/' + source_key
+        headers['x-amz-copy-source'] = '/' + source_bucket_name + '/' + source_key
 
         resp = self.__do_object('PUT', target_key, headers=headers)
         return PutObjectResult(resp)
 
     def update_object_meta(self, key, headers):
-        """更改Object的元数据信息，包括Content-Type这类标准的HTTP头部，以及以x-oss-meta-开头的自定义元数据。
+        """更改Object的元数据信息，包括Content-Type这类标准的HTTP头部，以及以x-amz-meta-开头的自定义元数据。
 
         用户可以通过 :func:`head_object` 获得元数据信息。
 
@@ -548,7 +548,7 @@ class Bucket(_Base):
 
         :return: :class:`RequestResult <oss2.models.RequestResult>`
         """
-        resp = self.__do_object('PUT', key, params={'acl': ''}, headers={'x-oss-object-acl': permission})
+        resp = self.__do_object('PUT', key, params={'acl': ''}, headers={'x-amz-object-acl': permission})
         return RequestResult(resp)
 
     def get_object_acl(self, key):
@@ -685,11 +685,11 @@ class Bucket(_Base):
         :return: :class:`PutObjectResult <oss2.models.PutObjectResult>`
         """
         headers = http.CaseInsensitiveDict(headers)
-        headers['x-oss-copy-source'] = '/' + source_bucket_name + '/' + source_key
+        headers['x-amz-copy-source'] = '/' + source_bucket_name + '/' + source_key
 
         range_string = _make_range_string(byte_range)
         if range_string:
-            headers['x-oss-copy-source-range'] = range_string
+            headers['x-amz-copy-source-range'] = range_string
 
         resp = self.__do_object('PUT', target_key,
                                 params={'uploadId': target_upload_id,
@@ -721,7 +721,7 @@ class Bucket(_Base):
             oss2.BUCKET_ACL_PUBLIC_READ_WRITE。
         """
         if permission:
-            headers = {'x-oss-acl': permission}
+            headers = {'x-amz-acl': permission}
         else:
             headers = None
         resp = self.__do_bucket('PUT', headers=headers)
@@ -743,7 +743,7 @@ class Bucket(_Base):
         :param str permission: 新的ACL，可以是oss2.BUCKET_ACL_PRIVATE、oss2.BUCKET_ACL_PUBLIC_READ或
             oss2.BUCKET_ACL_PUBLIC_READ_WRITE
         """
-        resp = self.__do_bucket('PUT', headers={'x-oss-acl': permission}, params={Bucket.ACL: ''})
+        resp = self.__do_bucket('PUT', headers={'x-amz-acl': permission}, params={Bucket.ACL: ''})
         return RequestResult(resp)
 
     def get_bucket_acl(self):
